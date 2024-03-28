@@ -1,0 +1,85 @@
+* {
+    box-sizing: border-box;
+  }
+
+.big-text {
+    padding: 0.5rem;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 2rem;
+    color: #176B87;
+}
+
+.small-text {
+    padding: 0.5rem;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 1rem;
+}
+
+#login-container {
+    display: flex;
+    justify-content: center;  
+}
+
+#login-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #EEF5FF;
+    border: solid;
+    border-color: #B4D4FF;
+    border-width: 1px;
+    border-radius: 7pt;
+    margin: 3rem;
+    padding: 1.5rem;
+}
+
+#login-logo {
+    margin-top: 3rem;
+    border: solid;
+    border-color: white;
+    border-width: 0.5rem;
+}
+
+#database{
+    font-family: Verdana, Arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    border: 1px;
+}
+
+#database th{
+    text-align: left;
+    padding: 12px;
+    background-color: #176B87;
+    color: #EEF5FF;
+}
+
+#database td{
+    text-align: left;
+    padding: 8px;
+}
+
+#database tr:nth-child(even){
+    background-color: lightgray;
+}
+
+#database tr:hover{
+    background-color: silver;
+}
+
+#database th, #database td{
+    border: 1px solid gray;
+}
+
+.footer {
+    display: flex;
+    position: fixed;
+    justify-content: center;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    font-family: Verdana, Arial, sans-serif;
+    font-style: italic;
+    font-size: 0.8rem;
+    padding: 1rem;
+}

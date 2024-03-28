@@ -1,0 +1,48 @@
+<!-- Import header template-->
+{% include "header.html" %}
+    <body>
+        <div>
+            <form method="POST" action="{{ url_for('new_reagent') }}">
+                {{ form.csrf_token}}
+                <div>
+                    {{ form.name.label }}
+                    {{ form.name }}
+                </div>
+                <div>
+                    {{ form.concentration.label }}
+                    {{ form.concentration }}
+                </div>
+                <div>
+                    {{ form.supplier.label }}
+                    {{ form.supplier }}
+                </div>
+                <div>
+                    {{ form.cas.label }}
+                    {{ form.cas }}
+                </div>
+                <div>
+                    {{ form.capacity.label }}
+                    {{ form.capacity }}
+                </div>
+                <div>
+                    {{ form.unit.label }}
+                    {{ form.unit }}
+                </div>
+                <div>
+                    {{ form.location.label }}
+                    {{ form.location }}
+                </div>
+                <div>
+                    {{ form.stock.label }}
+                    {{ form.stock }}
+                </div>
+                <div>
+                    {{ form.comment.label }}
+                    {{ form.comment }}
+                </div>
+                <div>
+                    {{ form.submit }}
+                </div>
+            </form>
+        </div>
+{% include "footer.html" %}

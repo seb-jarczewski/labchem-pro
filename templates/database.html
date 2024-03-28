@@ -1,0 +1,41 @@
+<!-- Import header template-->
+{% include "header.html" %}
+
+    <body>
+        <a href="{{ url_for('new_reagent') }}"><button>Add reagent</button></a>
+        <p class="big-text">Database</p>
+        <table id="database">
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Concentration</th>
+                <th>Supplier</th>
+                <th>CAS</th>
+                <th>Capacity</th>
+                <th>Unit</th>
+                <th>Location</th>
+                <th>Stock</th>
+                <th>Date added</th>
+                <!-- <th>User</th> -->
+                <th>Comment</th>
+            </tr>
+            {% for reagent in reagents %}
+            <tr>
+                <td>{{ reagent.reagentid }}</td>
+                <td>{{ reagent.name }}</td>
+                <td>{{ reagent.concentration }}</td>
+                <td>{{ reagent.supplier }}</td>
+                <td>{{ reagent.cas }}</td>
+                <td>{{ reagent.capacity }}</td>
+                <td>{{ reagent.unit }}</td>
+                <td>{{ reagent.location }}</td>
+                <td>{{ reagent.stock }}</td>
+                <td>{{ reagent.date }}</td>
+                <!-- <td>{{ reagent.user }}</td> -->
+                <td>{{ reagent.comment }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+
+<!-- Import footer template-->
+{% include "footer.html" %}
