@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, SelectField, EmailField
-from wtforms.validators import DataRequired, EqualTo, InputRequired
+from wtforms.validators import DataRequired, EqualTo, InputRequired, Length
 from datetime import datetime
 import secrets
 
@@ -56,8 +56,8 @@ class NewUserForm(FlaskForm):
     firstname = StringField("First Name", validators=[DataRequired()])
     lastname = StringField("Last Name", validators=[DataRequired()])
     email = EmailField("E-mail", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[InputRequired()])
-    password_confirm = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password", message="Passwords must match")])
+    password = PasswordField("Password", validators=[InputRequired(), EqualTo("password_confirm", message="Passwords must match"), Length(min=10)])
+    password_confirm = PasswordField("Repeat Password", validators=[DataRequired()])
     submit = SubmitField("Create account")
 
 # Define new_reagent form
@@ -85,18 +85,20 @@ def home():
 # Define new_user route
 @app.route("/new_user", methods=["GET", "POST"])
 def new_user():
-    # #Create NewUserForm form
-    # new_user_form = NewUserForm()
-    # if new_user_form.validate_on_submit():
-    #     #Create a new record into User table
-    #     new_user = User(
-    #         # Add new userid increased by one
-    #         firstname = new_user_form.firstname.data,
-    #         lastname = new_user_form.lastname.data,
-    #         email = new_user_form.email.data,
-    #         password = new_user_form.password.data,
-    #     )
-    return render_template("new_user.html")
+    #Create NewUserForm form
+    form = NewUserForm()
+    if form.validate_on_submit():
+        #Create a new record into User table
+        new_user = User(
+            firstname = form.firstname.data,
+            lastname = form.lastname.data,
+            email = form.email.data,
+            password = form.password.data,
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        return redirect(url_for("database"))
+    return render_template("new_user.html", form=form)
 
 # Define default table database route
 @app.route("/database")

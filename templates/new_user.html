@@ -1,4 +1,32 @@
 <!-- Import header template-->
 {% include "header.html" %}
     <body>
+        <div>
+            <form method="POST" action="{{ url_for('new_user') }}">
+                {{ form.csrf_token}}
+                <div>
+                    {{ form.firstname.label }}
+                    {{ form.firstname }}
+                </div>
+                <div>
+                    {{ form.lastname.label }}
+                    {{ form.lastname }}
+                </div>
+                <div>
+                    {{ form.email.label }}
+                    {{ form.email }}
+                </div>
+                <div>
+                    {{ form.password.label }}
+                    {{ form.password }}
+                </div>
+                <div>
+                    {{ form.password_confirm.label }}
+                    {{ form.password_confirm }}
+                </div>
+                <div>
+                    {{ form.submit }}
+                </div>
+            </form>
+        </div>
 {% include "footer.html" %}
