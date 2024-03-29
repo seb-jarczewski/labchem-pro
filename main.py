@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, SelectField, EmailField
-from wtforms.validators import DataRequired, EqualTo, InputRequired, Length
+from wtforms.validators import InputRequired, EqualTo, Length, Email
 from datetime import datetime
 import secrets
 
@@ -30,7 +30,7 @@ class User(db.Model):
     firstname = db.Column(db.String(50), nullable=False)
     lastname = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
-    password = db.Column(db.String(50), nullable=False) 
+    password = db.Column(db.String(50), nullable=False)
 
 class Reagent(db.Model):
     reagentid = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -53,25 +53,25 @@ with app.app_context():
 ##Define forms
 # Define new_user form
 class NewUserForm(FlaskForm):
-    firstname = StringField("First Name", validators=[DataRequired()])
-    lastname = StringField("Last Name", validators=[DataRequired()])
-    email = EmailField("E-mail", validators=[DataRequired()])
-    password = PasswordField("Password", validators=[InputRequired(), EqualTo("password_confirm", message="Passwords must match"), Length(min=10)])
-    password_confirm = PasswordField("Repeat Password", validators=[DataRequired()])
+    firstname = StringField("First Name", validators=[InputRequired()])
+    lastname = StringField("Last Name", validators=[InputRequired()])
+    email = StringField("Email", validators=[InputRequired(), Email()])
+    password = PasswordField("Password", validators=[InputRequired(), Length(min=3)])
+    password_confirm = PasswordField("Repeat Password", validators=[InputRequired(), EqualTo("password", message="Passwords must match.")])
     submit = SubmitField("Create account")
 
 # Define new_reagent form
 class NewReagentForm(FlaskForm):
-    name = StringField("Name", validators=[DataRequired()])
-    concentration = StringField("Concentration", validators=[DataRequired()])
-    supplier = StringField("Supplier", validators=[DataRequired()])
-    cas = StringField("CAS", validators=[DataRequired()])
-    capacity = StringField("Capacity", validators=[DataRequired()])
-    unit = SelectField("Unit", validators=[DataRequired()], choices=[("µl"), ("ml"), ("L"), ("mg"), ("g"), ("kg")])
-    location = StringField("Location", validators=[DataRequired()])
-    stock = StringField("Stock", validators=[DataRequired()])
-    # date = StringField("Date", validators=[DataRequired()])
-    # user = StringField("User", validators=[DataRequired()])
+    name = StringField("Name", validators=[InputRequired()])
+    concentration = StringField("Concentration", validators=[InputRequired()])
+    supplier = StringField("Supplier", validators=[InputRequired()])
+    cas = StringField("CAS", validators=[InputRequired()])
+    capacity = StringField("Capacity", validators=[InputRequired()])
+    unit = SelectField("Unit", validators=[InputRequired()], choices=[("µl"), ("ml"), ("L"), ("mg"), ("g"), ("kg")])
+    location = StringField("Location", validators=[InputRequired()])
+    stock = StringField("Stock", validators=[InputRequired()])
+    # date = StringField("Date", validators=[InputRequired()])
+    # user = StringField("User", validators=[InputRequired()])
     comment = StringField("Comment")
     submit = SubmitField("Add to database")
 
