@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, SelectField, EmailField
-from wtforms.validators import InputRequired, EqualTo, Length, Email
+from wtforms.validators import InputRequired, EqualTo, Length
 from datetime import datetime
 import secrets
 
@@ -13,7 +13,7 @@ app = Flask(__name__)
 # Configure the SQLite database, relative to the app instance folder
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///labchem.db"
 # Generate secret key for each session
-app.config["SECRET_KEY"] = f"{secrets.token_hex()}"
+app.config["SECRET_KEY"] = "super_secret_key"
 
 # Create the extension (initialize the database)
 db = SQLAlchemy()
@@ -55,7 +55,7 @@ with app.app_context():
 class NewUserForm(FlaskForm):
     firstname = StringField("First Name", validators=[InputRequired()])
     lastname = StringField("Last Name", validators=[InputRequired()])
-    email = StringField("Email", validators=[InputRequired(), Email()])
+    email = EmailField("Email", validators=[InputRequired()])
     password = PasswordField("Password", validators=[InputRequired(), Length(min=3)])
     password_confirm = PasswordField("Repeat Password", validators=[InputRequired(), EqualTo("password", message="Passwords must match.")])
     submit = SubmitField("Create account")
@@ -130,6 +130,35 @@ def new_reagent():
         db.session.commit()
         return redirect(url_for("database"))
     return render_template("new_reagent.html", form=form)
+
+# Edit exidting record
+@app.route("/edit/<int:reagentid>", methods=["GET", "POST"])
+def edit(reagentid):
+    reagent = db.get_or_404(Reagent, reagentid)
+    form = NewReagentForm(
+        name = reagent.name,
+        concentration = reagent.concentration,
+        supplier = reagent.supplier,
+        cas = reagent.cas,
+        capacity = reagent.capacity,
+        unit = reagent.unit,
+        location = reagent.location,
+        stock = reagent.stock,
+        comment = reagent.comment,
+    )
+    if form.validate_on_submit():
+        reagent.name = form.name.data
+        reagent.concentration = form.concentration.data
+        reagent.supplier = form.supplier.data
+        reagent.cas = form.cas.data
+        reagent.capacity = form.capacity.data
+        reagent.unit = form.unit.data
+        reagent.location = form.location.data
+        reagent.stock = form.stock.data
+        reagent.comment = form.comment.data
+        db.session.commit()
+        return redirect(url_for("database"))
+    return render_template("edit_record.html", form=form)
 
 
 if __name__ == "__main__":

@@ -3,10 +3,10 @@
     <body>
         <div>
             <div>   
-                <h1 class="big-text">Edit Record</h1>
+                <h1 class="big-text">Update Record</h1>
                 <h2 class="small-text">Edit details of existing record</h2>
             </div> 
-            <form method="POST" action="{{ url_for('edit') }}">
+            <form method="POST">
                 {{ form.csrf_token }}
                 <div>
                     {{ form.name.label }}
@@ -16,7 +16,7 @@
                     {{ form.concentration.label }}
                     {{ form.concentration }}
                 </div>
-                <div>
+                <div>   
                     {{ form.supplier.label }}
                     {{ form.supplier }}
                 </div>
@@ -45,7 +45,7 @@
                     {{ form.comment }}
                 </div>
                 <div>
-                    {{ form.submit }}
+                    <input type="submit" value="Update record">
                 </div>
             </form>
         </div>

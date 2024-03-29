@@ -2,8 +2,8 @@
 {% include "header.html" %}
 
     <body>
+        <h1 class="big-text">LabChem Reagents Database</h1>
         <a href="{{ url_for('new_reagent') }}"><button>Add reagent</button></a>
-        <p class="big-text">Database</p>
         <table id="database">
             <tr>
                 <th>ID</th>
@@ -18,6 +18,7 @@
                 <th>Date added</th>
                 <!-- <th>User</th> -->
                 <th>Comment</th>
+                <th>Edit</th>
             </tr>
             {% for reagent in reagents %}
             <tr>
@@ -33,6 +34,7 @@
                 <td>{{ reagent.date }}</td>
                 <!-- <td>{{ reagent.user }}</td> -->
                 <td>{{ reagent.comment }}</td>
+                <td><a href="{{url_for('edit', reagentid=reagent.reagentid) }}" style="text-decoration:none">✏️</a></td>
             </tr>
             {% endfor %}
         </table>

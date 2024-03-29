@@ -2,7 +2,11 @@
 {% include "header.html" %}
     <body>
         <div>
-            <form method="POST" action="{{ url_for('new_user') }}" novalidate>
+            <div>
+                <h1 class="big-text">New User</h1>
+                <h2 class="small-text">Create new account</h2>
+            </div>
+            <form method="POST" action="{{ url_for('new_user') }}">
                 {{ form.csrf_token}}
                 <div>
                     {{ form.firstname.label }}
@@ -22,7 +26,7 @@
                         {% endfor %}
                     </span>
                 </div>
-                <div>
+                <div novalidate>
                     {{ form.email.label }}
                     {{ form.email }}
                     <span class="error">
