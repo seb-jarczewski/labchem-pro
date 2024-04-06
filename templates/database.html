@@ -4,6 +4,15 @@
     <body>
         <h1 class="big-text">LabChem Reagents Database</h1>
         <a href="{{ url_for('new_reagent') }}"><button>Add reagent</button></a>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class=flashes>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
         <table id="database">
             <tr>
                 <th>ID</th>
@@ -11,14 +20,15 @@
                 <th>Concentration</th>
                 <th>Supplier</th>
                 <th>CAS</th>
-                <th>Capacity</th>
+                <th>Quantity</th>
                 <th>Unit</th>
                 <th>Location</th>
                 <th>Stock</th>
-                <th>Date added</th>
-                <!-- <th>User</th> -->
+                <th>Added on</th>
+                <!-- <th>Added by</th> -->
                 <th>Comment</th>
                 <th>Edit</th>
+                <th>Delete</th>
             </tr>
             {% for reagent in reagents %}
             <tr>
@@ -27,14 +37,14 @@
                 <td>{{ reagent.concentration }}</td>
                 <td>{{ reagent.supplier }}</td>
                 <td>{{ reagent.cas }}</td>
-                <td>{{ reagent.capacity }}</td>
+                <td>{{ reagent.quantity }}</td>
                 <td>{{ reagent.unit }}</td>
                 <td>{{ reagent.location }}</td>
                 <td>{{ reagent.stock }}</td>
                 <td>{{ reagent.date }}</td>
-                <!-- <td>{{ reagent.user }}</td> -->
                 <td>{{ reagent.comment }}</td>
                 <td><a href="{{url_for('edit', reagentid=reagent.reagentid) }}" style="text-decoration:none">✏️</a></td>
+                <td><a href="{{url_for('delete', reagentid=reagent.reagentid) }}" style="text-decoration:none">🗑️</a></td>
             </tr>
             {% endfor %}
         </table>

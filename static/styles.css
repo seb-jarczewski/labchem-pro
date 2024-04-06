@@ -87,3 +87,10 @@
     font-size: 0.8rem;
     padding: 1rem;
 }
+
+.flashes {
+    padding: 1rem;
+    font-family: Verdana, Arial, sans-serif;
+    color: red;
+    font-size: 1rem;
+}

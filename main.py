@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, SelectField, EmailField
@@ -26,24 +26,25 @@ db.init_app(app)
 
 ## CREATE TABLES
 class User(db.Model):
-    userid = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     firstname = db.Column(db.String(50), nullable=False)
     lastname = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(50), nullable=False)
+    # reagents = db.relationship("Reagent", backref="user")
 
 class Reagent(db.Model):
     reagentid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
-    concentration = db.Column(db.Float, nullable=False)
+    concentration = db.Column(db.String, nullable=False)
     supplier = db.Column(db.String(100), nullable=False)
     cas = db.Column(db.String(30), nullable=False)
-    capacity = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.String, nullable=False)
     unit = db.Column(db.String(10), nullable=False)
     location = db.Column(db.String(50), nullable=False)
     stock = db.Column(db.String(50), nullable=False)
     date = db.Column(db.String(50), nullable=False)
-    # user = db.Column(db.Integer, db.ForeignKey("user.userid"), nullable=False)
+    # userid = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     comment = db.Column(db.String(500))
 
 # Create table schema in the database. Requires application context.
@@ -56,7 +57,7 @@ class NewUserForm(FlaskForm):
     firstname = StringField("First Name", validators=[InputRequired()])
     lastname = StringField("Last Name", validators=[InputRequired()])
     email = EmailField("Email", validators=[InputRequired()])
-    password = PasswordField("Password", validators=[InputRequired(), Length(min=3)])
+    password = PasswordField("Password", validators=[InputRequired(), Length(min=3)]) #TODO Set more restrictions for password
     password_confirm = PasswordField("Repeat Password", validators=[InputRequired(), EqualTo("password", message="Passwords must match.")])
     submit = SubmitField("Create account")
 
@@ -66,23 +67,21 @@ class NewReagentForm(FlaskForm):
     concentration = StringField("Concentration", validators=[InputRequired()])
     supplier = StringField("Supplier", validators=[InputRequired()])
     cas = StringField("CAS", validators=[InputRequired()])
-    capacity = StringField("Capacity", validators=[InputRequired()])
+    quantity = StringField("Quantity", validators=[InputRequired()])
     unit = SelectField("Unit", validators=[InputRequired()], choices=[("µl"), ("ml"), ("L"), ("mg"), ("g"), ("kg")])
     location = StringField("Location", validators=[InputRequired()])
-    stock = StringField("Stock", validators=[InputRequired()])
-    # date = StringField("Date", validators=[InputRequired()])
-    # user = StringField("User", validators=[InputRequired()])
-    comment = StringField("Comment")
+    stock = StringField("Stock", validators=[InputRequired()]) #TODO Create separate website to set Stock with unit list etc.
+    comment = StringField("Comment (optional)")
     submit = SubmitField("Add to database")
 
 
 ## Define routes
-# Define homepage route
+# Homepage route
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# Define new_user route
+# Add new userroute
 @app.route("/new_user", methods=["GET", "POST"])
 def new_user():
     #Create NewUserForm form
@@ -100,14 +99,15 @@ def new_user():
         return redirect(url_for("database"))
     return render_template("new_user.html", form=form)
 
-# Define default table database route
+# Default table database route
 @app.route("/database")
 def database():
     # Query the databese for all reagents. Convert the data into a Python list
-    result = db.session.execute(db.select(Reagent))
-    reagents = result.scalars().all()
+    all_reagents = db.session.execute(db.select(Reagent))
+    reagents = all_reagents.scalars().all()
     return render_template("database.html", reagents=reagents)
 
+# Add new reagent
 @app.route("/new_reagent", methods=["GET", "POST"])
 def new_reagent():
     form = NewReagentForm()
@@ -118,12 +118,12 @@ def new_reagent():
             concentration = form.concentration.data,
             supplier = form.supplier.data,
             cas = form.cas.data,
-            capacity = form.capacity.data,
+            quantity = form.quantity.data,
             unit = form.unit.data,
             location = form.location.data,
             stock = form.stock.data,
-            date = datetime.now().strftime("%d-%m-%Y %X"),
-            # user = form.user.data,
+            date = datetime.now().strftime("%d-%m-%Y"),
+            # userid = 1, #TODO Change the code to use logged in user
             comment = form.comment.data,
         )
         db.session.add(new_reagent)
@@ -131,7 +131,7 @@ def new_reagent():
         return redirect(url_for("database"))
     return render_template("new_reagent.html", form=form)
 
-# Edit exidting record
+# Edit existing record route
 @app.route("/edit/<int:reagentid>", methods=["GET", "POST"])
 def edit(reagentid):
     reagent = db.get_or_404(Reagent, reagentid)
@@ -140,7 +140,7 @@ def edit(reagentid):
         concentration = reagent.concentration,
         supplier = reagent.supplier,
         cas = reagent.cas,
-        capacity = reagent.capacity,
+        quantity = reagent.quantity,
         unit = reagent.unit,
         location = reagent.location,
         stock = reagent.stock,
@@ -151,7 +151,7 @@ def edit(reagentid):
         reagent.concentration = form.concentration.data
         reagent.supplier = form.supplier.data
         reagent.cas = form.cas.data
-        reagent.capacity = form.capacity.data
+        reagent.quantity = form.quantity.data
         reagent.unit = form.unit.data
         reagent.location = form.location.data
         reagent.stock = form.stock.data
@@ -160,7 +160,17 @@ def edit(reagentid):
         return redirect(url_for("database"))
     return render_template("edit_record.html", form=form)
 
+# Delete existing record route
+@app.route("/delete/<int:reagentid>")
+def delete(reagentid):
+    reagent_to_delete = db.get_or_404(Reagent, reagentid)
+    db.session.delete(reagent_to_delete)
+    db.session.commit()
+    flash(f'You have deleted: {reagent_to_delete.name}.')
+    return redirect(url_for("database"))
+
 
 if __name__ == "__main__":
     app.run(debug=True)
+
 

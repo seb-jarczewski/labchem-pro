@@ -4,7 +4,7 @@
         <div>
             <div>   
                 <h1 class="big-text">New Reagent</h1>
-                <h2 class="small-text">Add new reagent to the database</h2>
+                <h2 class="small-text">Add new reagent to database</h2>
             </div> 
             <form method="POST" action="{{ url_for('new_reagent') }}">
                 {{ form.csrf_token }}
@@ -25,8 +25,8 @@
                     {{ form.cas }}
                 </div>
                 <div>
-                    {{ form.capacity.label }}
-                    {{ form.capacity }}
+                    {{ form.quantity.label }}
+                    {{ form.quantity }}
                 </div>
                 <div>
                     {{ form.unit.label }}
