@@ -4,6 +4,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField, SelectField, EmailField
 from wtforms.validators import InputRequired, EqualTo, Length
 from datetime import datetime
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager
 import secrets
 
 # Create application (a Flask Instance)
@@ -13,12 +15,15 @@ app = Flask(__name__)
 # Configure the SQLite database, relative to the app instance folder
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///labchem.db"
 # Generate secret key for each session
-app.config["SECRET_KEY"] = "super_secret_key"
+app.config["SECRET_KEY"] = "some_secret_key" #TODO Create randomly generated secret key with: secrets.token_hex()
 
 # Create the extension (initialize the database)
 db = SQLAlchemy()
 
 # SQLALchemy - Object Relational Mapping library - map the relationships in the database into Objects (tables as Classes, rows as Objects, fields as Object properties)
+
+# Create a Login Manager class
+login_manager = LoginManager()
 
 # Initialize the app with the extension
 db.init_app(app)
@@ -87,12 +92,14 @@ def new_user():
     #Create NewUserForm form
     form = NewUserForm()
     if form.validate_on_submit():
+        # Hashing and salting the password entered by the user 
+        pwhash = generate_password_hash(form.password.data, method="pbkdf2:sha256", salt_length=8)
         #Create a new record into User table
         new_user = User(
             firstname = form.firstname.data,
             lastname = form.lastname.data,
             email = form.email.data,
-            password = form.password.data,
+            password = pwhash
         )
         db.session.add(new_user)
         db.session.commit()
