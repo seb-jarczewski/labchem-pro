@@ -5,7 +5,7 @@ from wtforms import StringField, SubmitField, PasswordField, SelectField, EmailF
 from wtforms.validators import InputRequired, EqualTo, Length
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager
+from flask_login import LoginManager, UserMixin, login_user
 import secrets
 
 # Create application (a Flask Instance)
@@ -19,18 +19,22 @@ app.config["SECRET_KEY"] = "some_secret_key" #TODO Create randomly generated sec
 
 # Create the extension (initialize the database)
 db = SQLAlchemy()
+# Initialize the app with the extension
+db.init_app(app)
 
 # SQLALchemy - Object Relational Mapping library - map the relationships in the database into Objects (tables as Classes, rows as Objects, fields as Object properties)
 
 # Create a Login Manager class
 login_manager = LoginManager()
-
 # Initialize the app with the extension
-db.init_app(app)
-
+login_manager.init_app(app)
+# Creates a user loader callback that returns the user object given an id
+@login_manager.user_loader
+def load_user(id):
+    return db.get_or_404(User, id)
 
 ## CREATE TABLES
-class User(db.Model):
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     firstname = db.Column(db.String(50), nullable=False)
     lastname = db.Column(db.String(50), nullable=False)
@@ -56,7 +60,14 @@ class Reagent(db.Model):
 with app.app_context():
     db.create_all()
 
-##Define forms
+## Define forms
+# Define login form
+class LoginForm(FlaskForm):
+    email = EmailField("Email", validators=[InputRequired()])
+    password = PasswordField("Password", validators=[InputRequired()])
+    submit = SubmitField("Login")
+
+
 # Define new_user form
 class NewUserForm(FlaskForm):
     firstname = StringField("First Name", validators=[InputRequired()])
@@ -82,9 +93,22 @@ class NewReagentForm(FlaskForm):
 
 ## Define routes
 # Homepage route
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def home():
-    return render_template("index.html")
+    # Create login form
+    form = LoginForm()
+    if form.validate_on_submit():
+        email = form.email.data
+        password = form.password.data
+        # Find user by email and find user's hashed password
+        user = db.get_or_404(User, email)
+        pwhash = db.get_or_404(User, password)
+        # Check stored password hash against entered password
+        if password == pwhash:
+            # Use the login_user method to log in the user
+            login_user(user)
+            return redirect(url_for("database")) #TODO Not found error
+    return render_template("index.html", form=form)
 
 # Add new userroute
 @app.route("/new_user", methods=["GET", "POST"])
@@ -103,7 +127,7 @@ def new_user():
         )
         db.session.add(new_user)
         db.session.commit()
-        return redirect(url_for("database"))
+        return redirect(url_for("home"))
     return render_template("new_user.html", form=form)
 
 # Default table database route

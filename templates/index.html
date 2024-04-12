@@ -9,7 +9,20 @@
                 <div id="login-logo">
                     <img src="https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295397__340.png" width="150px">
                 </div>
-                <button>Login</button>
+                <form method="POST" action="{{ url_for('home') }}">
+                    {{ form.csrf_token}}
+                    <div>
+                        {{ form.email.label }}
+                        {{ form.email }}
+                    </div>
+                    <div>
+                        {{ form.password.label }}
+                        {{ form.password }}
+                    </div>
+                    <div>
+                        {{ form.submit }}
+                    </div>
+                </form>
                 <div class="small-text">Not registered? <a href="{{ url_for('new_user') }}">Create account</a></div>
                 <a href="{{ url_for('database') }}"><button>Show database (read only mode)</button></a>
             </div> 
