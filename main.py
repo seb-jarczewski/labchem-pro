@@ -91,25 +91,32 @@ class NewReagentForm(FlaskForm):
     submit = SubmitField("Add to database")
 
 
+
+
 ## Define routes
 # Homepage route
-@app.route("/", methods=["GET", "POST"])
+@app.route("/")
 def home():
+    return render_template("index.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
     # Create login form
     form = LoginForm()
     if form.validate_on_submit():
         email = form.email.data
-        password = form.password.data
+        login_password = form.password.data
         # Find user by email and find user's hashed password
         user = db.get_or_404(User, email)
-        pwhash = db.get_or_404(User, password)
+        user_pwhash = db.get_or_404(User, login_password)
+        x = user.firstname
+        print(x)
         # Check stored password hash against entered password
-        if password == pwhash:
-            # Use the login_user method to log in the user
-            login_user(user)
-            return redirect(url_for("database")) #TODO Not found error
-    return render_template("index.html", form=form)
-
+        # if check_password_hash(user_pwhash, login_password):
+        #     # Use the login_user method to log in the user
+        #     login_user(user)
+        return redirect(url_for("database")) #TODO Not found error
+    return render_template("login.html", form=form)
 # Add new userroute
 @app.route("/new_user", methods=["GET", "POST"])
 def new_user():
@@ -126,7 +133,7 @@ def new_user():
             password = pwhash
         )
         db.session.add(new_user)
-        db.session.commit()
+        db.session.commit() 
         return redirect(url_for("home"))
     return render_template("new_user.html", form=form)
 
@@ -203,5 +210,3 @@ def delete(reagentid):
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-
