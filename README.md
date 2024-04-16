@@ -1,6 +1,6 @@
 # LabChem PRO
 
-Labchem PRO is a web app laboratory inventory system, based on my Labchem-db preliminary project. 
+Labchem PRO is a web app laboratory inventory management system, based on my Labchem-db preliminary project. 
 
 The project is currently **in development phase**, constantly improved.
 
@@ -12,41 +12,53 @@ The project is currently **in development phase**, constantly improved.
 
 ## Usage
 
-The main page shows the welcome screen with access to the main table in read only mode for not logged in users.
-Currently, only one table is available - the chemical reagents inventory table.
+The home page shows welcome screen with access to the main table in read only mode for not logged in users.
+Currently, only Reagent table is available - the chemical reagents inventory table.
 
-You can log in to get access to the edit mode.
+Information you can store in the record:
+- Unique ID
+- Name
+- CAS no.
+- Capacity
+- Unit
+- Manufaturer
+- Location in lab
+- Added on
+- Comment
 
-You can delete any record by clicking 🗑️.
-You can edit any record by clicking ✏️.
-You can find any reagent by choosing ctrl+f.
+You can login to get access to edit mode!
+
+  You can delete any record by clicking 🗑️.
+
+  You can edit any record by clicking ✏️.
+
+  You can find any reagent by choosing ctrl+f.
 
 Logged in users can add new users to the User table and new reagents to the Reagent table.
+
 Passwords are stored as hashes.
 
-**Improvements planned to be implemented:**
+## Improvements planned to be implemented in the near future:
 
 - adding, editing and deleting users restricted only to Admin user,
-- changing passwords by users,
+- reset passwords by users,
 - adding new, customized tables,
 - adding new, customized columns in tables,
-- dynamic filtering and sorting data in tables,
-- alerts about stock levels,
-- exporting reports,
-- exporting/importing backup files,
+- filtering and sorting data in tables,
+- exporting reports with some statistics and/or graphs,
+- exporting/importing backup tables.
 
-## Technologies Used
+## Technologies/Libraries/Packages Used
 
 - Python
-- HTML 5
+- HTML5
 - CSS
 - Flask
 - Flask-Login
 - Flask-WTF
-- SQL
 - SQLAlchemy
-- 
+- werkzeug.security
 
 ## License
-
+Sebastian Jarczewski copyright 2024
 
