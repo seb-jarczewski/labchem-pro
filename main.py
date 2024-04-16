@@ -5,7 +5,7 @@ from wtforms import StringField, SubmitField, PasswordField, SelectField, EmailF
 from wtforms.validators import InputRequired, EqualTo, Length
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import LoginManager, UserMixin, login_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
 import secrets
 
 # Create application (a Flask Instance)
@@ -17,19 +17,17 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///labchem.db"
 # Generate secret key for each session
 app.config["SECRET_KEY"] = "some_secret_key" #TODO Create randomly generated secret key with: secrets.token_hex()
 
-# Create the extension (initialize the database)
-db = SQLAlchemy()
-# Initialize the app with the extension
-db.init_app(app)
+
+db = SQLAlchemy() # Create the extension (initialize the database)
+db.init_app(app) # Initialize the app with the extension
 
 # SQLALchemy - Object Relational Mapping library - map the relationships in the database into Objects (tables as Classes, rows as Objects, fields as Object properties)
 
-# Create a Login Manager class
-login_manager = LoginManager()
-# Initialize the app with the extension
-login_manager.init_app(app)
-# Creates a user loader callback that returns the user object given an id
-@login_manager.user_loader
+login_manager = LoginManager() # Create a Login Manager class
+login_manager.init_app(app) # Initialize the app with the extension
+
+# Creates a user loader callback that returns the user object
+@login_manager.user_loader 
 def load_user(id):
     return db.get_or_404(User, id)
 
@@ -97,28 +95,27 @@ class NewReagentForm(FlaskForm):
 # Homepage route
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index.html", logged_in=current_user.is_authenticated)
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     # Create login form
     form = LoginForm()
     if form.validate_on_submit():
+        # Login and validate the user.
         email = form.email.data
         login_password = form.password.data
         # Find user by email and find user's hashed password
-        user = db.get_or_404(User, email)
-        user_pwhash = db.get_or_404(User, login_password)
-        x = user.firstname
-        print(x)
-        # Check stored password hash against entered password
-        # if check_password_hash(user_pwhash, login_password):
-        #     # Use the login_user method to log in the user
-        #     login_user(user)
-        return redirect(url_for("database")) #TODO Not found error
+        result = db.session.execute(db.select(User).where(User.email==email))
+        user = result.scalar() # user should be an instance of 'User' class
+        login_user(user)
+        if check_password_hash(user.password, login_password):
+            return redirect(url_for("database"))
     return render_template("login.html", form=form)
+
 # Add new userroute
 @app.route("/new_user", methods=["GET", "POST"])
+@login_required
 def new_user():
     #Create NewUserForm form
     form = NewUserForm()
@@ -135,18 +132,19 @@ def new_user():
         db.session.add(new_user)
         db.session.commit() 
         return redirect(url_for("home"))
-    return render_template("new_user.html", form=form)
+    return render_template("new_user.html", form=form, logged_in=current_user.is_authenticated)
 
-# Default table database route
+# Database route editable
 @app.route("/database")
 def database():
     # Query the databese for all reagents. Convert the data into a Python list
     all_reagents = db.session.execute(db.select(Reagent))
     reagents = all_reagents.scalars().all()
-    return render_template("database.html", reagents=reagents)
+    return render_template("database.html", reagents=reagents, logged_in=current_user.is_authenticated)
 
 # Add new reagent
 @app.route("/new_reagent", methods=["GET", "POST"])
+@login_required
 def new_reagent():
     form = NewReagentForm()
     if form.validate_on_submit():
@@ -167,10 +165,11 @@ def new_reagent():
         db.session.add(new_reagent)
         db.session.commit()
         return redirect(url_for("database"))
-    return render_template("new_reagent.html", form=form)
+    return render_template("new_reagent.html", form=form, logged_in=current_user.is_authenticated)
 
 # Edit existing record route
 @app.route("/edit/<int:reagentid>", methods=["GET", "POST"])
+@login_required
 def edit(reagentid):
     reagent = db.get_or_404(Reagent, reagentid)
     form = NewReagentForm(
@@ -196,17 +195,23 @@ def edit(reagentid):
         reagent.comment = form.comment.data
         db.session.commit()
         return redirect(url_for("database"))
-    return render_template("edit_record.html", form=form)
+    return render_template("edit_record.html", form=form, logged_in=current_user.is_authenticated)
 
 # Delete existing record route
 @app.route("/delete/<int:reagentid>")
+@login_required
 def delete(reagentid):
     reagent_to_delete = db.get_or_404(Reagent, reagentid)
     db.session.delete(reagent_to_delete)
     db.session.commit()
     flash(f'You have deleted: {reagent_to_delete.name}.')
-    return redirect(url_for("database"))
+    return redirect(url_for("database"))    
 
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("home"))
 
 if __name__ == "__main__":
     app.run(debug=True)

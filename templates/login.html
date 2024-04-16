@@ -1,19 +1,20 @@
 <!-- Import header template-->
 {% include "header.html" %}
 
-    <body>
         <div id="login-container">
             <div id="login-column">   
                 <div class="big-text">LabChem Inventory System</div>
-                <div class="small-text">Please login to your account</div>
+                {% if not logged_in %}
+                    <div class="small-text">Please login to your account</div>
+                {% endif %}
                 <div id="login-logo">
                     <img src="https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295397__340.png" width="150px">
                 </div>
-                <form method="POST" action="{{ url_for('home') }}">
+                <form method="POST" action="{{ url_for('login') }}">
                     {{ form.csrf_token}}
                     <div>
                         {{ form.email.label }}
-                        {{ form.email }}
+                        {{ form.email }}    
                     </div>
                     <div>
                         {{ form.password.label }}

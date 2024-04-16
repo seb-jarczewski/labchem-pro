@@ -1,18 +1,20 @@
 <!-- Import header template-->
 {% include "header.html" %}
-
-    <body>
+    
         <div id="login-container">
             <div id="login-column">   
                 <div class="big-text">LabChem Inventory System</div>
-                <div class="small-text">Please login to your account</div>
+                {% if not logged_in %}
+                    <div class="small-text">Please login to your account</div>
+                {% endif %}
                 <div id="login-logo">
                     <img src="https://cdn.pixabay.com/photo/2016/03/31/19/56/avatar-1295397__340.png" width="150px">
                 </div>
-                <a href="{{ url_for('login') }}"><button>Login</button></a>
-                </form>
-                <div class="small-text">Not registered? <a href="{{ url_for('new_user') }}">Create account</a></div>
-                <a href="{{ url_for('database') }}"><button>Show database (read only mode)</button></a>
+                {% if not logged_in %}
+                    <a href="{{ url_for('database') }}"><button>Show database (read only mode)</button></a>
+                {% else %}
+                    <a href="{{ url_for('database') }}"><button>Show database</button></a>
+                {% endif %}
             </div> 
         </div>
         

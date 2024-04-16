@@ -6,3 +6,10 @@
         <title>LabChem</title>
         <link rel="stylesheet" href="/static/styles.css">
     </head>
+    <body>
+        <a href="{{ url_for('home') }}"><button>Home</button></a>
+        {% if not logged_in %}
+            <a href="{{ url_for('login') }}"><button>Login</button></a>
+        {% else %}
+            <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+        {% endif %}

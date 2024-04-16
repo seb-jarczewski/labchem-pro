@@ -48,7 +48,8 @@
     font-family: Verdana, Arial, sans-serif;
     border-collapse: collapse;
     width: 100%;
-    border: 1px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 #database th{

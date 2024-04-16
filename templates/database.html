@@ -1,9 +1,12 @@
 <!-- Import header template-->
 {% include "header.html" %}
 
-    <body>
         <h1 class="big-text">LabChem Reagents Database</h1>
-        <a href="{{ url_for('new_reagent') }}"><button>Add reagent</button></a>
+        {% if logged_in %}
+            <a href="{{ url_for('new_reagent') }}"><button>Add reagent</button></a>
+            <a href="{{ url_for('new_user') }}"><button>Register new user</button></a>
+            <a href="#"><button>List of users</button></a>
+        {% endif %}
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul class=flashes>
@@ -27,8 +30,10 @@
                 <th>Added on</th>
                 <!-- <th>Added by</th> -->
                 <th>Comment</th>
-                <th>Edit</th>
-                <th>Delete</th>
+                {% if logged_in %}
+                    <th>Edit</th>
+                    <th>Delete</th>
+                {% endif %}
             </tr>
             {% for reagent in reagents %}
             <tr>
@@ -43,8 +48,10 @@
                 <td>{{ reagent.stock }}</td>
                 <td>{{ reagent.date }}</td>
                 <td>{{ reagent.comment }}</td>
-                <td><a href="{{url_for('edit', reagentid=reagent.reagentid) }}" style="text-decoration:none">✏️</a></td>
-                <td><a href="{{url_for('delete', reagentid=reagent.reagentid) }}" style="text-decoration:none">🗑️</a></td>
+                {% if logged_in %}
+                    <td><a href="{{url_for('edit', reagentid=reagent.reagentid) }}" style="text-decoration:none">✏️</a></td>
+                    <td><a href="{{url_for('delete', reagentid=reagent.reagentid) }}" style="text-decoration:none">🗑️</a></td>
+                {% endif %}
             </tr>
             {% endfor %}
         </table>
