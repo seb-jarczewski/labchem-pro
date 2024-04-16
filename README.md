@@ -46,7 +46,8 @@ Passwords are stored as hashes.
 - adding new, customized columns in tables,
 - filtering and sorting data in tables,
 - exporting reports with some statistics and/or graphs,
-- exporting/importing backup tables.
+- exporting/importing backup tables,
+- css modern styling (currently a preliminary css styling is added).
 
 ## Technologies/Libraries/Packages Used
 
