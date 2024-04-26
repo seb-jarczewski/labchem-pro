@@ -25,9 +25,10 @@ db.init_app(app) # Initialize the app with the extension
 
 login_manager = LoginManager() # Create a Login Manager class
 login_manager.init_app(app) # Initialize the app with the extension
+login_manager.login_view = "login"
 
 # Creates a user loader callback that returns the user object
-@login_manager.user_loader 
+@login_manager.user_loader # Load user when logged in
 def load_user(id):
     return db.get_or_404(User, id)
 
@@ -44,7 +45,7 @@ class Reagent(db.Model):
     reagentid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
     concentration = db.Column(db.String, nullable=False)
-    supplier = db.Column(db.String(100), nullable=False)
+    manufacturer = db.Column(db.String(100), nullable=False)
     cas = db.Column(db.String(30), nullable=False)
     quantity = db.Column(db.String, nullable=False)
     unit = db.Column(db.String(10), nullable=False)
@@ -79,10 +80,10 @@ class NewUserForm(FlaskForm):
 class NewReagentForm(FlaskForm):
     name = StringField("Name", validators=[InputRequired()])
     concentration = StringField("Concentration", validators=[InputRequired()])
-    supplier = StringField("Supplier", validators=[InputRequired()])
+    manufacturer = StringField("Manufacturer", validators=[InputRequired()])
     cas = StringField("CAS", validators=[InputRequired()])
     quantity = StringField("Quantity", validators=[InputRequired()])
-    unit = SelectField("Unit", validators=[InputRequired()], choices=[("µl"), ("ml"), ("L"), ("mg"), ("g"), ("kg")])
+    unit = SelectField("Unit", validators=[InputRequired()], choices=[("ml"), ("L"), ("µl"), ("g"), ("mg"), ("kg")])
     location = StringField("Location", validators=[InputRequired()])
     stock = StringField("Stock", validators=[InputRequired()]) #TODO Create separate website to set Stock with unit list etc.
     comment = StringField("Comment (optional)")
@@ -108,9 +109,15 @@ def login():
         # Find user by email and find user's hashed password
         result = db.session.execute(db.select(User).where(User.email==email))
         user = result.scalar() # user should be an instance of 'User' class
-        login_user(user)
-        if check_password_hash(user.password, login_password):
-            return redirect(url_for("database"))
+        if user:
+            login_user(user)
+            if check_password_hash(user.password, login_password):
+                flash("Login succesfull")
+                return redirect(url_for("database"))
+            else:
+                flash("Wrong password. Try again.")
+        else:
+            flash("That email does not exist. Try again.")
     return render_template("login.html", form=form)
 
 # Add new userroute
@@ -152,7 +159,7 @@ def new_reagent():
         new_reagent = Reagent(
             name = form.name.data,
             concentration = form.concentration.data,
-            supplier = form.supplier.data,
+            manufacturer = form.manufacturer.data,
             cas = form.cas.data,
             quantity = form.quantity.data,
             unit = form.unit.data,
@@ -175,7 +182,7 @@ def edit(reagentid):
     form = NewReagentForm(
         name = reagent.name,
         concentration = reagent.concentration,
-        supplier = reagent.supplier,
+        manufacturer = reagent.manufacturer,
         cas = reagent.cas,
         quantity = reagent.quantity,
         unit = reagent.unit,
@@ -186,7 +193,7 @@ def edit(reagentid):
     if form.validate_on_submit():
         reagent.name = form.name.data
         reagent.concentration = form.concentration.data
-        reagent.supplier = form.supplier.data
+        reagent.manufacturer = form.manufacturer.data
         reagent.cas = form.cas.data
         reagent.quantity = form.quantity.data
         reagent.unit = form.unit.data
