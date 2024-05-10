@@ -6,6 +6,8 @@ from wtforms.validators import InputRequired, EqualTo, Length
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user, logout_user
+from flask_admin import Admin, AdminIndexView
+from flask_admin.contrib.sqla import ModelView
 import secrets
 
 # Create application (a Flask Instance)
@@ -40,6 +42,19 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     password = db.Column(db.String(50), nullable=False)
     # reagents = db.relationship("Reagent", backref="user")
+
+# Define my ModelView and inherit from ModelView to overwrite some parameters
+class MyModelView(ModelView):
+    def is_accessible(self):
+        return False
+
+class MyAdminIndexView(AdminIndexView):
+    def is_accessible(self):
+        return False
+
+admin = Admin(app, index_view=MyAdminIndexView()) # Creates admin object and add my own Admin index view to ovwerwrite
+admin.add_view(MyModelView(User, db.session)) # Create ModelView for User table using sqlalchemy
+admin.add_view()
 
 class Reagent(db.Model):
     reagentid = db.Column(db.Integer, primary_key=True, autoincrement=True)
